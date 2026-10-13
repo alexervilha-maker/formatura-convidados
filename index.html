@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Convidados da Formatura</title>
+<style>
+:root{--bg:#f7f6f3;--panel:#fff;--fg:#1f1e1c;--muted:#6b6862;--line:#e3e0da;--accent:#c9732f;--neutral:#b9b4ab;--ok:#2f7d4f;--warn:#a85d12}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1a18;--panel:#24231f;--fg:#ece9e3;--muted:#a19d95;--line:#3a3833;--accent:#e08a45;--neutral:#5e5a53;--ok:#6cc08f;--warn:#e8a35e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:20px}
+h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:2rem;margin:0}
+.lead{color:var(--muted);margin:6px 0 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.lbl,.sub{color:var(--muted);font-size:.8rem}
+.val{font-family:Georgia,serif;font-size:2rem;margin:4px 0;font-variant-numeric:tabular-nums}
+h2{font-size:1.05rem;font-weight:600;margin:0}
+.note{color:var(--muted);font-size:.8rem;margin:4px 0 14px}
+.legend{display:flex;gap:16px;font-size:.8rem;color:var(--muted);margin-bottom:10px;flex-wrap:wrap}
+.sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(110px,30%) 1fr;gap:10px;align-items:center;font-size:.85rem}
+.bar .name{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{display:flex;align-items:center;gap:6px}
+.bar .fill{height:24px;border-radius:4px}
+.bar .n{color:var(--muted);font-variant-numeric:tabular-nums}
+.scroll{max-height:28rem;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{position:sticky;top:0;background:var(--panel);color:var(--muted);font-weight:600;font-size:.78rem}
+.num{text-align:right}
+.pill{display:inline-block;padding:0 8px;border-radius:999px;font-size:.78rem;border:1px solid var(--line);white-space:nowrap}
+.pill.ok{color:var(--ok)}.pill.wait{color:var(--warn)}
+td.obs{color:var(--muted);font-size:.8rem;min-width:12rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tools input,.tools select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.tools input{flex:1 1 12rem}
+.foot{color:var(--muted);font-size:.75rem;text-align:center}
+@media (max-width:640px){.hide-sm{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Convidados da formatura</h1>
+    <p class="lead" id="takeaway"></p>
+  </header>
+
+  <section class="kpis">
+    <div class="card"><div class="lbl">Convidados extras declarados</div><div class="val" id="k-total"></div><div class="sub">soma de todas as famílias</div></div>
+    <div class="card"><div class="lbl">Listas recebidas</div><div class="val" id="k-listas"></div><div class="sub">de <span id="k-fam"></span> famílias</div></div>
+    <div class="card"><div class="lbl">Extras sem nome ainda</div><div class="val" id="k-pend"></div><div class="sub">famílias que não mandaram lista</div></div>
+    <div class="card"><div class="lbl">Nomes já recebidos</div><div class="val" id="k-nomes"></div><div class="sub">inclui pais e irmãos listados</div></div>
+    <div class="card"><div class="lbl">Crianças</div><div class="val" id="k-cri"></div><div class="sub">entre os extras declarados</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Convidados extras por formando</h2>
+    <p class="note">Quantidade declarada por cada família, colorida pela situação da lista de nomes.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--neutral)"></i>Lista recebida</span><span><i class="sw" style="background:var(--accent)"></i>Aguardando lista</span></div>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <section class="card">
+    <h2>Situação por família</h2>
+    <p class="note">Nomes recebidos não contam o próprio formando.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Formando(a)</th><th>Responsável</th><th class="num">Extras</th><th class="num hide-sm">Crianças</th><th class="num">Nomes</th><th>Situação</th><th class="hide-sm">Observação</th></tr></thead>
+      <tbody id="tb-fam"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Lista de convidados</h2>
+    <p class="note">Todos os nomes enviados até agora.</p>
+    <div class="tools">
+      <input type="search" id="busca" placeholder="Buscar nome…" aria-label="Buscar nome">
+      <select id="filtro" aria-label="Filtrar por formando"><option value="">Todos os formandos</option></select>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Nome</th><th>Formando(a)</th><th>Parentesco</th><th class="num">Idade</th></tr></thead>
+      <tbody id="tb-conv"></tbody>
+    </table></div>
+  </section>
+
+  <p class="foot">Atualizado em 13/10/2026</p>
+</div>
+
+<script>
+const familias = [
+  {formando:"Manuela Bonaldo",responsavel:"Giovanna",extras:8,criancas:0,status:"Lista recebida",obs:"Lista com 10 nomes: os 8 extras mais mãe e pai"},
+  {formando:"Agatha",responsavel:"Lívia",extras:3,criancas:0,status:"Aguardando lista",obs:""},
+  {formando:"Gabriel Galdino Ferreira",responsavel:"Não informado",extras:8,criancas:2,status:"Lista recebida",obs:"6 adultos e 2 crianças; a lista inclui também pai, mãe e irmão"},
+  {formando:"Olivia Lanzoni",responsavel:"Mary",extras:2,criancas:0,status:"Aguardando lista",obs:""},
+  {formando:"Ana Luiza",responsavel:"Priscilla",extras:6,criancas:0,status:"Lista recebida",obs:"Conferir: 7 nomes além da aluna para 6 extras"},
+  {formando:"Olivia Camilo",responsavel:"Juliana",extras:8,criancas:1,status:"Aguardando lista",obs:"7 adultos e 1 criança"},
+  {formando:"Miguel",responsavel:"Fernanda",extras:2,criancas:0,status:"Aguardando lista",obs:""}
+];
+const convidados = [
+  ["Giovanna M. Quinalha Bonaldo","Manuela Bonaldo","Mãe",""],
+  ["Caio H. Bonaldo","Manuela Bonaldo","Pai",""],
+  ["Adriana Cristina Massete","Manuela Bonaldo","",""],
+  ["Lucas Medon","Manuela Bonaldo","",""],
+  ["Fernanda Gonçalves","Manuela Bonaldo","",""],
+  ["Rafael Raposo Alves","Manuela Bonaldo","",""],
+  ["Gustavo Bonaldo","Manuela Bonaldo","",""],
+  ["Heloisa Sanguli","Manuela Bonaldo","",""],
+  ["Claudio Bonaldo","Manuela Bonaldo","",""],
+  ["Karen Rodrigues","Manuela Bonaldo","",""],
+  ["Nicolas Galdino Ferreira","Gabriel Galdino Ferreira","Irmão",""],
+  ["Donizete Ap. Ferreira Silva","Gabriel Galdino Ferreira","Pai",""],
+  ["Ariane Galdino Ferreira","Gabriel Galdino Ferreira","Mãe",""],
+  ["Amanda Galdino","Gabriel Galdino Ferreira","",""],
+  ["Fábio de Lima","Gabriel Galdino Ferreira","",""],
+  ["Miguel Galdino","Gabriel Galdino Ferreira","","6"],
+  ["Lercio Galdino","Gabriel Galdino Ferreira","",""],
+  ["Neide Ferreira","Gabriel Galdino Ferreira","",""],
+  ["Gledson Coelho","Gabriel Galdino Ferreira","",""],
+  ["Gabriela Coelho","Gabriel Galdino Ferreira","",""],
+  ["Rafael Coelho","Gabriel Galdino Ferreira","","11"],
+  ["João Bosco Ramalho","Ana Luiza","",""],
+  ["Roney André Savariz","Ana Luiza","",""],
+  ["Fabrício Leandro Braz","Ana Luiza","",""],
+  ["Marcia Regina Ramalho","Ana Luiza","",""],
+  ["Priscilla Daniele Braz","Ana Luiza","Mãe",""],
+  ["Maisa de Fátima Dutra Bonani","Ana Luiza","",""],
+  ["Adilson Luiz Bonani","Ana Luiza","",""]
+].map(([nome,formando,parentesco,idade])=>({nome,formando,parentesco,idade}));
+
+const $=id=>document.getElementById(id);
+const recebida=f=>f.status==="Lista recebida";
+const total=familias.reduce((s,f)=>s+f.extras,0);
+const listas=familias.filter(recebida).length;
+const pend=familias.filter(f=>!recebida(f)).reduce((s,f)=>s+f.extras,0);
+const cri=familias.reduce((s,f)=>s+f.criancas,0);
+$("k-total").textContent=total;$("k-listas").textContent=listas;$("k-fam").textContent=familias.length;
+$("k-pend").textContent=pend;$("k-nomes").textContent=convidados.length;$("k-cri").textContent=cri;
+$("takeaway").textContent=`${familias.length-listas} de ${familias.length} famílias ainda não mandaram a lista de nomes — faltam ${pend} dos ${total} convidados extras.`;
+
+const max=Math.max(...familias.map(f=>f.extras));
+const el=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
+familias.forEach(f=>{
+  const row=el("div","bar");row.title=`${f.formando} · ${f.responsavel} — ${f.extras} extras · ${f.status}`;
+  row.appendChild(el("div","name",f.formando));
+  const tr=el("div","track");const fill=el("div","fill");
+  fill.style.width=(f.extras/max*85)+"%";fill.style.background=recebida(f)?"var(--neutral)":"var(--accent)";
+  tr.appendChild(fill);tr.appendChild(el("span","n",f.extras));row.appendChild(tr);$("bars").appendChild(row);
+});
+
+familias.forEach(f=>{
+  const tr=el("tr");const n=convidados.filter(c=>c.formando===f.formando).length;
+  tr.appendChild(el("td","",f.formando));tr.appendChild(el("td","",f.responsavel));
+  tr.appendChild(el("td","num",f.extras));tr.appendChild(el("td","num hide-sm",f.criancas));
+  tr.appendChild(el("td","num",n));
+  const st=el("td");st.appendChild(el("span","pill "+(recebida(f)?"ok":"wait"),f.status));tr.appendChild(st);
+  tr.appendChild(el("td","obs hide-sm",f.obs));$("tb-fam").appendChild(tr);
+});
+
+[...new Set(convidados.map(c=>c.formando))].forEach(f=>{const o=el("option","",f);o.value=f;$("filtro").appendChild(o);});
+function drawConv(){
+  const q=$("busca").value.trim().toLowerCase(),f=$("filtro").value;$("tb-conv").innerHTML="";
+  convidados.filter(c=>(!f||c.formando===f)&&(!q||c.nome.toLowerCase().includes(q))).forEach(c=>{
+    const tr=el("tr");tr.appendChild(el("td","",c.nome));tr.appendChild(el("td","",c.formando));
+    tr.appendChild(el("td","",c.parentesco));tr.appendChild(el("td","num",c.idade?c.idade+" anos":""));$("tb-conv").appendChild(tr);
+  });
+}
+$("busca").addEventListener("input",drawConv);$("filtro").addEventListener("change",drawConv);drawConv();
+</script>
+</body>
+</html>
