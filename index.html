@@ -93,7 +93,7 @@ const familias = [
   {formando:"Manuela Bonaldo",responsavel:"Giovanna",extras:8,criancas:0,status:"Lista recebida",obs:"Lista com 10 nomes: os 8 extras mais mãe e pai"},
   {formando:"Agatha",responsavel:"Lívia",extras:3,criancas:0,status:"Aguardando lista",obs:""},
   {formando:"Gabriel Galdino Ferreira",responsavel:"Não informado",extras:8,criancas:2,status:"Lista recebida",obs:"6 adultos e 2 crianças; a lista inclui também pai, mãe e irmão"},
-  {formando:"Olivia Lanzoni",responsavel:"Mary",extras:2,criancas:0,status:"Aguardando lista",obs:""},
+  {formando:"Olivia Lanzoni",responsavel:"Mary",extras:2,criancas:0,status:"Lista recebida",obs:"Lista inclui também mãe e pai"},
   {formando:"Ana Luiza",responsavel:"Priscilla",extras:6,criancas:0,status:"Lista recebida",obs:"Conferir: 7 nomes além da aluna para 6 extras"},
   {formando:"Olivia Camilo",responsavel:"Juliana",extras:8,criancas:1,status:"Aguardando lista",obs:"7 adultos e 1 criança"},
   {formando:"Miguel",responsavel:"Fernanda",extras:2,criancas:0,status:"Aguardando lista",obs:""},
@@ -134,7 +134,11 @@ const convidados = [
   ["Wagner Aparecido de Barros","Luisa e Isadora Sant Ana de Barros","",""],
   ["Neusa Ap Cecílio de Barros","Luisa e Isadora Sant Ana de Barros","",""],
   ["José Edivaldo Sant Ana","Luisa e Isadora Sant Ana de Barros","",""],
-  ["Cleusa da Costa Sant Ana","Luisa e Isadora Sant Ana de Barros","",""]
+  ["Cleusa da Costa Sant Ana","Luisa e Isadora Sant Ana de Barros","",""],
+  ["Mary Christina Hergert","Olivia Lanzoni","Mãe",""],
+  ["Douglas Heitor Barboza","Olivia Lanzoni","Pai",""],
+  ["Livaldo Hergert","Olivia Lanzoni","",""],
+  ["Izabel Piffer Hergert","Olivia Lanzoni","",""]
 ].map(([nome,formando,parentesco,idade])=>({nome,formando,parentesco,idade}));
 
 const $=id=>document.getElementById(id);
