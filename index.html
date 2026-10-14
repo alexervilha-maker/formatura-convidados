@@ -91,7 +91,7 @@ td.obs{color:var(--muted);font-size:.8rem;min-width:12rem}
 <script>
 const familias = [
   {formando:"Manuela Bonaldo",responsavel:"Giovanna",extras:8,criancas:0,status:"Lista recebida",obs:"Lista com 10 nomes: os 8 extras mais mãe e pai"},
-  {formando:"Agatha",responsavel:"Lívia",extras:3,criancas:0,status:"Aguardando lista",obs:""},
+  {formando:"Agatha",responsavel:"Lívia",extras:3,criancas:0,status:"Lista recebida",obs:"Lista inclui também mãe e pai"},
   {formando:"Gabriel Galdino Ferreira",responsavel:"Não informado",extras:8,criancas:2,status:"Lista recebida",obs:"6 adultos e 2 crianças; a lista inclui também pai, mãe e irmão"},
   {formando:"Olivia Lanzoni",responsavel:"Mary",extras:2,criancas:0,status:"Lista recebida",obs:"Lista inclui também mãe e pai"},
   {formando:"Ana Luiza",responsavel:"Priscilla",extras:6,criancas:0,status:"Lista recebida",obs:"Conferir: 7 nomes além da aluna para 6 extras"},
@@ -143,7 +143,12 @@ const convidados = [
   ["Antonio Galvão","Miguel","Pai",""],
   ["Gustavo Ikeuti","Miguel","Irmão",""],
   ["Sandra Ikeuti","Miguel","",""],
-  ["Adila Santos","Miguel","",""]
+  ["Adila Santos","Miguel","",""],
+  ["Leonardo","Agatha","Pai",""],
+  ["Lívia","Agatha","Mãe",""],
+  ["Luiz Fernando Barcellos","Agatha","",""],
+  ["Ekaterina Inglesis Barcellos","Agatha","",""],
+  ["Eric Inglesis Barcellos","Agatha","",""]
 ].map(([nome,formando,parentesco,idade])=>({nome,formando,parentesco,idade}));
 
 const $=id=>document.getElementById(id);
