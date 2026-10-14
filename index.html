@@ -85,7 +85,7 @@ td.obs{color:var(--muted);font-size:.8rem;min-width:12rem}
     </table></div>
   </section>
 
-  <p class="foot">Atualizado em 13/10/2026</p>
+  <p class="foot">Atualizado em 14/10/2026</p>
 </div>
 
 <script>
@@ -96,7 +96,8 @@ const familias = [
   {formando:"Olivia Lanzoni",responsavel:"Mary",extras:2,criancas:0,status:"Aguardando lista",obs:""},
   {formando:"Ana Luiza",responsavel:"Priscilla",extras:6,criancas:0,status:"Lista recebida",obs:"Conferir: 7 nomes além da aluna para 6 extras"},
   {formando:"Olivia Camilo",responsavel:"Juliana",extras:8,criancas:1,status:"Aguardando lista",obs:"7 adultos e 1 criança"},
-  {formando:"Miguel",responsavel:"Fernanda",extras:2,criancas:0,status:"Aguardando lista",obs:""}
+  {formando:"Miguel",responsavel:"Fernanda",extras:2,criancas:0,status:"Aguardando lista",obs:""},
+  {formando:"Luisa e Isadora Sant Ana de Barros",responsavel:"Camila",extras:4,criancas:0,status:"Lista recebida",obs:"Gêmeas formandas; lista inclui também mãe, pai e irmão"}
 ];
 const convidados = [
   ["Giovanna M. Quinalha Bonaldo","Manuela Bonaldo","Mãe",""],
@@ -126,7 +127,14 @@ const convidados = [
   ["Marcia Regina Ramalho","Ana Luiza","",""],
   ["Priscilla Daniele Braz","Ana Luiza","Mãe",""],
   ["Maisa de Fátima Dutra Bonani","Ana Luiza","",""],
-  ["Adilson Luiz Bonani","Ana Luiza","",""]
+  ["Adilson Luiz Bonani","Ana Luiza","",""],
+  ["Camila Costa Sant Ana de Barros","Luisa e Isadora Sant Ana de Barros","Responsável",""],
+  ["Fabricio de Barros","Luisa e Isadora Sant Ana de Barros","",""],
+  ["Vicente Sant Ana de Barros","Luisa e Isadora Sant Ana de Barros","Irmão",""],
+  ["Wagner Aparecido de Barros","Luisa e Isadora Sant Ana de Barros","",""],
+  ["Neusa Ap Cecílio de Barros","Luisa e Isadora Sant Ana de Barros","",""],
+  ["José Edivaldo Sant Ana","Luisa e Isadora Sant Ana de Barros","",""],
+  ["Cleusa da Costa Sant Ana","Luisa e Isadora Sant Ana de Barros","",""]
 ].map(([nome,formando,parentesco,idade])=>({nome,formando,parentesco,idade}));
 
 const $=id=>document.getElementById(id);
