@@ -96,7 +96,7 @@ const familias = [
   {formando:"Olivia Lanzoni",responsavel:"Mary",extras:2,criancas:0,status:"Lista recebida",obs:"Lista inclui também mãe e pai"},
   {formando:"Ana Luiza",responsavel:"Priscilla",extras:6,criancas:0,status:"Lista recebida",obs:"Conferir: 7 nomes além da aluna para 6 extras"},
   {formando:"Olivia Camilo",responsavel:"Juliana",extras:8,criancas:1,status:"Aguardando lista",obs:"7 adultos e 1 criança"},
-  {formando:"Miguel",responsavel:"Fernanda",extras:2,criancas:0,status:"Aguardando lista",obs:""},
+  {formando:"Miguel",responsavel:"Fernanda",extras:2,criancas:0,status:"Lista recebida",obs:"Lista inclui também mãe, pai e irmão"},
   {formando:"Luisa e Isadora Sant Ana de Barros",responsavel:"Camila",extras:4,criancas:0,status:"Lista recebida",obs:"Gêmeas formandas; lista inclui também mãe, pai e irmão"}
 ];
 const convidados = [
@@ -138,7 +138,12 @@ const convidados = [
   ["Mary Christina Hergert","Olivia Lanzoni","Mãe",""],
   ["Douglas Heitor Barboza","Olivia Lanzoni","Pai",""],
   ["Livaldo Hergert","Olivia Lanzoni","",""],
-  ["Izabel Piffer Hergert","Olivia Lanzoni","",""]
+  ["Izabel Piffer Hergert","Olivia Lanzoni","",""],
+  ["Fernanda Ikeuti","Miguel","Mãe",""],
+  ["Antonio Galvão","Miguel","Pai",""],
+  ["Gustavo Ikeuti","Miguel","Irmão",""],
+  ["Sandra Ikeuti","Miguel","",""],
+  ["Adila Santos","Miguel","",""]
 ].map(([nome,formando,parentesco,idade])=>({nome,formando,parentesco,idade}));
 
 const $=id=>document.getElementById(id);
