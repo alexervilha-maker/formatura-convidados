@@ -97,7 +97,7 @@ tr.grupo td{font-weight:600;background:var(--bg)}
 
   <section class="card" id="rel-card">
     <h2>Relatório de convidados</h2>
-    <p class="note">Escolha a ordem e o formando e clique em Gerar relatório. Depois use Imprimir para imprimir ou salvar em PDF.</p>
+    <p class="note">Escolha a ordem e o formando e clique em Gerar relatório. Depois clique em Baixar PDF.</p>
     <div class="tools">
       <select id="rel-ordem" aria-label="Ordem do relatório">
         <option value="todos">Todos (agrupados por formando)</option>
@@ -107,7 +107,7 @@ tr.grupo td{font-weight:600;background:var(--bg)}
       <select id="rel-formando" aria-label="Formando do relatório"><option value="">Todos os formandos</option></select>
       <label><input type="checkbox" id="rel-pend" checked> incluir nomes a confirmar</label>
       <button type="button" id="rel-gerar">Gerar relatório</button>
-      <button type="button" class="sec" id="rel-print" hidden>Imprimir</button>
+      <button type="button" class="sec" id="rel-print" hidden>Baixar PDF</button>
     </div>
     <div id="relatorio" hidden>
       <div class="rel-head"><strong id="rel-titulo"></strong><span class="rel-meta" id="rel-info"></span></div>
@@ -169,7 +169,7 @@ const familias = [
   "extras": 8,
   "criancas": 1,
   "status": "Aguardando lista",
-  "obs": "7 adultos e 1 criança"
+  "obs": "7 adultos e 1 criança; previstos também mãe, pai e irmão"
  },
  {
   "formando": "Miguel Ikeuti Galvão",
@@ -490,6 +490,24 @@ const convidados = [
   "idade": ""
  },
  {
+  "nome": "Mãe de Olívia Camilo (a confirmar)",
+  "formando": "Olívia dos Santos Camilo",
+  "parentesco": "Mãe",
+  "idade": ""
+ },
+ {
+  "nome": "Pai de Olívia Camilo (a confirmar)",
+  "formando": "Olívia dos Santos Camilo",
+  "parentesco": "Pai",
+  "idade": ""
+ },
+ {
+  "nome": "Irmão(ã) de Olívia Camilo (a confirmar)",
+  "formando": "Olívia dos Santos Camilo",
+  "parentesco": "Irmão",
+  "idade": ""
+ },
+ {
   "nome": "Miguel Ikeuti Galvão",
   "formando": "Miguel Ikeuti Galvão",
   "parentesco": "Formando(a)",
@@ -767,6 +785,63 @@ function drawConv(){
 }
 $("busca").addEventListener("input",drawConv);$("filtro").addEventListener("change",drawConv);drawConv();
 
+let relLinhas=[];
+function gerarPdfRelatorio(titulo, info, linhas) {
+  // linhas: [{tipo:'grupo', texto}] ou [{tipo:'linha', n, nome, formando, parentesco, pend}]
+  const W = 595, H = 842, M = 40, LH = 15;
+  const limpa = t => String(t == null ? '' : t)
+    .replace(/→/g, 'a').replace(/[—–]/g, '-').replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
+    .replace(/[^\x20-\x7E\xA0-\xFF]/g, '');
+  const esc = t => limpa(t).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  const corta = (t, max) => { t = limpa(t); return t.length > max ? t.slice(0, max - 1) + '...' : t; };
+  const cols = [{ x: M, max: 4 }, { x: M + 30, max: 40 }, { x: M + 255, max: 36 }, { x: M + 455, max: 14 }];
+  const paginas = []; let ops = [], y = 0;
+  const txt = (x, yy, s, size, bold, cinza) =>
+    ops.push(`${cinza ? '0.45 g' : '0 g'} BT /${bold ? 'F2' : 'F1'} ${size} Tf ${x} ${yy} Td (${esc(s)}) Tj ET`);
+  const linha = yy => ops.push(`0.85 G 0.5 w ${M} ${yy} m ${W - M} ${yy} l S`);
+  const cabecalho = () => {
+    y = H - M;
+    txt(M, y - 14, titulo, 16, true); y -= 32;
+    txt(M, y, info, 9, false, true); y -= 22;
+    ['N', 'Nome', 'Formando(a)', 'Parentesco'].forEach((h, i) => txt(cols[i].x, y, h, 9, true, true));
+    y -= 6; linha(y); y -= LH;
+  };
+  const novaPagina = () => { if (ops.length) paginas.push(ops); ops = []; cabecalho(); };
+  novaPagina();
+  linhas.forEach(l => {
+    if (y < M + LH) novaPagina();
+    if (l.tipo === 'grupo') { y -= 4; txt(M, y, l.texto, 10, true); y -= LH; return; }
+    const cin = !!l.pend;
+    txt(cols[0].x, y, l.n, 9, false, true);
+    txt(cols[1].x, y, corta(l.nome, cols[1].max), 9, !!l.aluno, cin);
+    txt(cols[2].x, y, corta(l.formando, cols[2].max), 9, false, cin);
+    txt(cols[3].x, y, corta(l.parentesco, cols[3].max), 9, false, cin);
+    y -= LH;
+  });
+  paginas.push(ops);
+  paginas.forEach((p, i) => p.push(`0.45 g BT /F1 8 Tf ${W - M - 60} 24 Td (${esc('Pagina ' + (i + 1) + ' de ' + paginas.length)}) Tj ET`));
+  const objs = [];
+  objs[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+  objs[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+  objs[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+  const kids = [];
+  paginas.forEach((p, i) => {
+    const pg = 5 + i * 2, ct = pg + 1, s = p.join('\n');
+    kids.push(`${pg} 0 R`);
+    objs[pg] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${ct} 0 R >>`;
+    objs[ct] = `<< /Length ${s.length} >>\nstream\n${s}\nendstream`;
+  });
+  objs[2] = `<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${kids.length} >>`;
+  let out = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'; const off = [];
+  for (let i = 1; i < objs.length; i++) { off[i] = out.length; out += `${i} 0 obj\n${objs[i]}\nendobj\n`; }
+  const xref = out.length;
+  out += `xref\n0 ${objs.length}\n0000000000 65535 f \n` + off.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+  out += `trailer\n<< /Size ${objs.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  const bytes = new Uint8Array(out.length);
+  for (let i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 255;
+  return bytes;
+}
+
 familias.forEach(f=>{const o=el("option","",f.formando);o.value=f.formando;$("rel-formando").appendChild(o);});
 $("rel-gerar").addEventListener("click",()=>{
   const ordem=$("rel-ordem").value,f=$("rel-formando").value,inc=$("rel-pend").checked;
@@ -774,10 +849,11 @@ $("rel-gerar").addEventListener("click",()=>{
   const coll=new Intl.Collator("pt-BR",{sensitivity:"base"});
   if(ordem==="asc")rows=rows.slice().sort((a,b)=>coll.compare(a.nome,b.nome));
   if(ordem==="desc")rows=rows.slice().sort((a,b)=>coll.compare(b.nome,a.nome));
-  const tb=$("tb-rel");tb.innerHTML="";let g=null,i=0;
+  const tb=$("tb-rel");tb.innerHTML="";let g=null,i=0;relLinhas=[];
   rows.forEach(c=>{
-    if(ordem==="todos"&&c.formando!==g){g=c.formando;const gr=el("tr","grupo");const td=el("td","",g);td.colSpan=4;gr.appendChild(td);tb.appendChild(gr);}
+    if(ordem==="todos"&&c.formando!==g){g=c.formando;relLinhas.push({tipo:"grupo",texto:g});const gr=el("tr","grupo");const td=el("td","",g);td.colSpan=4;gr.appendChild(td);tb.appendChild(gr);}
     const tr=el("tr",isPend(c)?"pend":isAluno(c)?"aluno":"");
+    relLinhas.push({tipo:"linha",n:i+1,nome:c.nome,formando:c.formando,parentesco:c.parentesco,pend:isPend(c),aluno:isAluno(c)});
     tr.appendChild(el("td","num",++i));tr.appendChild(el("td","",c.nome));tr.appendChild(el("td","",c.formando));tr.appendChild(el("td","",c.parentesco));tb.appendChild(tr);
   });
   const nome={todos:"agrupado por formando",asc:"ordem crescente (A → Z)",desc:"ordem decrescente (Z → A)"}[ordem];
@@ -785,7 +861,12 @@ $("rel-gerar").addEventListener("click",()=>{
   $("rel-info").textContent=`${rows.length} nomes · ${nome} · gerado em ${new Date().toLocaleDateString("pt-BR")}`;
   $("relatorio").hidden=false;$("rel-print").hidden=false;
 });
-$("rel-print").addEventListener("click",()=>window.print());
+$("rel-print").addEventListener("click",()=>{
+  const bytes=gerarPdfRelatorio($("rel-titulo").textContent,$("rel-info").textContent,relLinhas);
+  const url=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));
+  const a=document.createElement("a");a.href=url;a.download="relatorio-convidados-"+new Date().toISOString().slice(0,10)+".pdf";
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+});
 </script>
 </body>
 </html>
