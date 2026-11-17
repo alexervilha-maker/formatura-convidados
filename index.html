@@ -118,7 +118,7 @@ tr.grupo td{font-weight:600;background:var(--bg)}
     </div>
   </section>
 
-  <p class="foot">Atualizado em 16/11/2026</p>
+  <p class="foot">Atualizado em 17/11/2026</p>
 </div>
 
 <script>
@@ -198,10 +198,10 @@ const familias = [
  {
   "formando": "Giordano Franzin Strautmann",
   "responsavel": "Não informado",
-  "extras": 0,
+  "extras": 4,
   "criancas": 0,
   "status": "Aguardando lista",
-  "obs": "Previstos mãe, pai e irmão; nomes a confirmar"
+  "obs": "Previstos mãe, pai e irmão; extras: avô, avó e mais 2 convidados; nomes a confirmar"
  },
  {
   "formando": "Vittoria Antonella Lucchini",
@@ -712,6 +712,30 @@ const convidados = [
   "idade": ""
  },
  {
+  "nome": "Avô de Giordano (a confirmar)",
+  "formando": "Giordano Franzin Strautmann",
+  "parentesco": "Avô",
+  "idade": ""
+ },
+ {
+  "nome": "Avó de Giordano (a confirmar)",
+  "formando": "Giordano Franzin Strautmann",
+  "parentesco": "Avó",
+  "idade": ""
+ },
+ {
+  "nome": "Convidado 1 de Giordano (a confirmar)",
+  "formando": "Giordano Franzin Strautmann",
+  "parentesco": "Convidado(a)",
+  "idade": ""
+ },
+ {
+  "nome": "Convidado 2 de Giordano (a confirmar)",
+  "formando": "Giordano Franzin Strautmann",
+  "parentesco": "Convidado(a)",
+  "idade": ""
+ },
+ {
   "nome": "Vittoria Antonella Lucchini",
   "formando": "Vittoria Antonella Lucchini",
   "parentesco": "Formando(a)",
@@ -813,7 +837,8 @@ const $=id=>document.getElementById(id);
 const recebida=f=>f.status==="Lista recebida";
 const total=familias.reduce((s,f)=>s+f.extras,0);
 const listas=familias.filter(recebida).length;
-const pend=familias.filter(f=>!recebida(f)).reduce((s,f)=>s+f.extras,0);
+const baseP=["Formando(a)","Mãe","Pai","Irmão"];
+const pend=familias.filter(f=>!recebida(f)).reduce((s,f)=>s+Math.max(0,f.extras-convidados.filter(c=>c.formando===f.formando&&c.nome.includes("(a confirmar)")&&!baseP.includes(c.parentesco)).length),0);
 const cri=familias.reduce((s,f)=>s+f.criancas,0);
 $("k-total").textContent=total;$("k-listas").textContent=listas;$("k-fam").textContent=familias.length;
 const isAluno=c=>c.parentesco==="Formando(a)",isPend=c=>c.nome.includes("(a confirmar)");
